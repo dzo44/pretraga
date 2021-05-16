@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtriranje</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Pretraga</h1>
+        </div>
+        <div class="row">
+            <div class="col-md-7">
+                <form action="">
+                    <div class="from-group">
+                        <select name="" id="Select1" class="form-control" onchange="PrikaziProizvode()">
+                            <option value="0">Svi proizvodi</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-5">
+
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-7" id="div2">
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/mustache/mustache.min.js"></script>
+
+    <script type="text/html" id="sablon1">
+        {{#Podaci}}
+            <option value="{{KategorijaId}}">{{NazivKategorije}}</option>
+        {{/Podaci}}
+    </script>
+
+    <script type="text/html" id="sablon2">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td>Id</td>
+                    <td>Naziv</td>
+                    <td>Cena</td>
+                </tr>
+            </thead>
+            <tbody>
+                {{#Podaci}}
+                <tr>
+                    <td>{{ProizvodId}}</td>
+                    <td>{{NazivProizvoda}}</td>
+                    <td>{{Cena}}</td>
+                </tr> 
+                {{/Podaci}}
+            </tbody>
+        </table>
+        
+    </script>
+
+    <script>
+        function PrikaziKategorije() {
+            var adresa = "https://goranapi.azurewebsites.net/api/kategorija";
+
+            var zahtev = $.getJSON(adresa);
+            zahtev.done(function (kategorije) {
+                var sablon = $("#sablon1").html();
+                var sablonSaPodacima = Mustache.render(sablon, {Podaci: kategorije});
+                $("#Select1").append(sablonSaPodacima);
+            });
+
+            zahtev.fail();
+        }
+
+        function PrikaziProizvode() {
+            var id = $("#Select1").val();
+            var adresa = "https://goranapi.azurewebsites.net/api/proizvod/kategorija/" + id; 
+
+            var zahtev = $.getJSON(adresa);
+            zahtev.done(function (proizvodi) {
+                var sablon2 = $("#sablon2").html();
+                var sablonSaPodacima = Mustache.render(sablon2,{Podaci: proizvodi});
+
+                $("#div2").html(sablonSaPodacima);
+            });
+
+            zahtev.fail();
+        }
+
+        $(function () {
+            PrikaziKategorije();
+            PrikaziProizvode();
+        });
+    </script>
+</body>
+</html>
